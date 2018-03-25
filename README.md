@@ -1,2 +1,2 @@
 # Human-Detector
-The underlying code to detect hoomans (and cats, of course :smiley_cat:)
+The underlying code to detect hoomans (and :smiley_cat:, of course)
