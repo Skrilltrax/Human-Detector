@@ -16,6 +16,8 @@ class detector {
         detector(Mat src_frame)
             {
                 src_frame.copyTo(frame2);
+                cvtColor( frame2, frame_gray, COLOR_BGR2GRAY );
+                equalizeHist( frame_gray, frame_gray );
             }
         
         void detect();
@@ -36,7 +38,7 @@ class detector {
         Mat frame2;
         Mat frame_gray;
 
-        int out[24][4];
+        int out[5];
 
         std::vector<Rect> faces;
         std::vector<Rect> eyes;
@@ -149,11 +151,11 @@ void detector::detectFaceEyes()
         }
     }
     if ((faces.size() >= 1 && eyes.size() >=1) || (profile.size() >= 1 && profile_eyes.size()) >=1)
-        out[deg][FACE] = 2;
+        out[FACE] = 2;
     else if (faces.size() >= 1 || profile.size() >= 1)
-        out[deg][FACE] = 1;
+        out[FACE] = 1;
     else
-        out[deg][FACE] = 0;
+        out[FACE] = 0;
     
 }
 
@@ -170,9 +172,9 @@ void detector::detectUpperBody()
     }
     
     if (upperbody.size() >= 1)
-        out[deg][UPPERBODY] = 1;
+        out[UPPERBODY] = 1;
     else
-        out[deg][UPPERBODY] = 0;
+        out[UPPERBODY] = 0;
 }
 
 void detector::detectLowerBody()
@@ -188,9 +190,9 @@ void detector::detectLowerBody()
         }
     
     if (lowerbody.size() >= 1)
-        out[deg][LOWERBODY] = 1;
+        out[LOWERBODY] = 1;
     else
-        out[deg][LOWERBODY] = 0;
+        out[LOWERBODY] = 0;
     
 }
 
@@ -207,9 +209,9 @@ void detector::detectFullBody()
         }
     
     if (fullbody.size() >= 1)
-        out[deg][FULLBODY] = 1;
+        out[FULLBODY] = 1;
     else
-        out[deg][FULLBODY] = 0;
+        out[FULLBODY] = 0;
     
 }
 
@@ -226,42 +228,29 @@ void detector::detectSmile()
     }
     
     if (smile.size() >= 1)
-        out[deg][SMILE] = 1;
+        out[SMILE] = 1;
     else
-        out[deg][SMILE] = 0;
-}
-
-void detector::rotateImg() {
-
-    Point2f pt(frame2.cols/2., frame2.rows/2.);    
-    Mat r = getRotationMatrix2D(pt, (double)15*deg, 1.0);
-    warpAffine(frame2, frame, r, Size(frame2.cols, frame2.rows));
-    cvtColor( frame, frame_gray, COLOR_BGR2GRAY );
-    equalizeHist( frame_gray, frame_gray );
-
+        out[SMILE] = 0;
 }
 
 void detector::detect()
 {
     int sum = 0;
     int flag = 0;
-    for (deg = 0 ; deg < 1 ; deg++) 
-    {
-        rotateImg();
-        detectFaceEyes();
-        detectUpperBody();
-        detectLowerBody();
-        detectFullBody();
-        detectSmile();
-    }
-    imshow("OUT",frame);
+
+    detectFaceEyes();
+    detectUpperBody();
+    detectLowerBody();
+    detectFullBody();
+    detectSmile();
+    
+    
     for (int j = 0; j < 5 ; j++)
     {
-        sum += out[0][j];
-        printf("%d\n",out[0][j]);
+        sum += out[j];
+        printf("%d\n",out[j]);
     }
-    imshow("OUT",frame);
-    waitKey(0);
+
     if (sum >= 3)
         printf("Human Found\n\n");
     else
